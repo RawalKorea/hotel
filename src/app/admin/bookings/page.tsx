@@ -2,6 +2,8 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { prisma } from "@/lib/prisma";
 import { BookingManager } from "@/components/admin/booking-manager";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminBookingsPage() {
   const bookings = await prisma.booking.findMany({
     include: {

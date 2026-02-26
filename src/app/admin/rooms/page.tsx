@@ -2,6 +2,8 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { prisma } from "@/lib/prisma";
 import { RoomList } from "@/components/admin/room-list";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminRoomsPage() {
   const rooms = await prisma.room.findMany({
     include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } },

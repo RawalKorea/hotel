@@ -8,6 +8,8 @@ import { RoomBookingForm } from "@/components/user/room-booking-form";
 import { RoomImageGallery } from "@/components/user/room-image-gallery";
 import { RoomReviews } from "@/components/user/room-reviews";
 
+export const dynamic = "force-dynamic";
+
 export default async function RoomDetailPage({
   params,
 }: {

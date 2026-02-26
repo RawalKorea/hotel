@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { MyBookingList } from "@/components/user/my-booking-list";
 
+export const dynamic = "force-dynamic";
+
 export default async function MyBookingsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");

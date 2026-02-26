@@ -18,6 +18,8 @@ import {
 import { RecentBookings } from "@/components/admin/recent-bookings";
 import { OccupancyChart } from "@/components/admin/occupancy-chart";
 
+export const dynamic = "force-dynamic";
+
 async function getDashboardData() {
   const [totalRooms, totalBookings, todayBookings, totalUsers] =
     await Promise.all([

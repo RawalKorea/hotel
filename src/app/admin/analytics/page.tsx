@@ -10,6 +10,8 @@ import {
 import { RevenueChart } from "@/components/admin/revenue-chart";
 import { GradeDistribution } from "@/components/admin/grade-distribution";
 
+export const dynamic = "force-dynamic";
+
 async function getAnalyticsData() {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);

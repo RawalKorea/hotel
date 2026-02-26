@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { SearchBar } from "@/components/user/search-bar";
 
+export const dynamic = "force-dynamic";
+
 async function getFeaturedRooms() {
   return prisma.room.findMany({
     where: { status: "AVAILABLE" },
