@@ -30,7 +30,7 @@ type BookingData = {
   checkOut: Date;
   status: string;
   room: { name: string; grade: string };
-  user: { name: string | null; email: string; phone: string | null };
+  user: { name: string | null; email: string | null; username?: string | null; phone: string | null };
 };
 
 type RoomOption = { id: string; name: string };

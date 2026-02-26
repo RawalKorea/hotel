@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
+import Kakao from "next-auth/providers/kakao";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
@@ -14,22 +15,40 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/login",
   },
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-    }),
+    ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+      ? [
+          Google({
+            clientId: process.env.AUTH_GOOGLE_ID,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET,
+          }),
+        ]
+      : []),
+    ...(process.env.AUTH_KAKAO_ID && process.env.AUTH_KAKAO_SECRET
+      ? [
+          Kakao({
+            clientId: process.env.AUTH_KAKAO_ID,
+            clientSecret: process.env.AUTH_KAKAO_SECRET,
+          }),
+        ]
+      : []),
     Credentials({
       name: "credentials",
       credentials: {
-        email: { label: "이메일", type: "email" },
+        loginId: { label: "이메일 또는 아이디", type: "text" },
         password: { label: "비밀번호", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.loginId || !credentials?.password) return null;
+        const loginId = credentials.loginId as string;
+        const isEmail = loginId.includes("@");
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-        });
+        const user = isEmail
+          ? await prisma.user.findUnique({
+              where: { email: loginId },
+            })
+          : await prisma.user.findUnique({
+              where: { username: loginId },
+            });
 
         if (!user || !user.password) return null;
 
@@ -42,9 +61,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         return {
           id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
+          email: user.email ?? user.username ?? "",
+          name: user.name ?? undefined,
+          image: user.image ?? undefined,
           role: user.role,
         };
       },

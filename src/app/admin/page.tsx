@@ -56,7 +56,7 @@ async function getDashboardData() {
       take: 5,
       orderBy: { createdAt: "desc" },
       include: {
-        user: { select: { name: true, email: true } },
+        user: { select: { name: true, email: true, username: true } },
         room: { select: { name: true, grade: true } },
       },
     });

@@ -40,7 +40,7 @@ type BookingData = {
   totalPrice: number;
   status: string;
   createdAt: Date;
-  user: { name: string | null; email: string; phone: string | null };
+  user: { name: string | null; email: string | null; username: string | null; phone: string | null };
   room: { name: string; grade: string };
   payment: { status: string; amount: number } | null;
 };
@@ -146,7 +146,7 @@ export function BookingManager({
                           {booking.user.name || "이름 없음"}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {booking.user.email}
+                          {booking.user.email ?? booking.user.username ?? "-"}
                         </p>
                       </div>
                     </TableCell>

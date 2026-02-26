@@ -37,13 +37,13 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const result = await signIn("credentials", {
-        email: data.email,
+        loginId: data.loginId,
         password: data.password,
         redirect: false,
       });
 
       if (result?.error) {
-        toast.error("이메일 또는 비밀번호가 올바르지 않습니다.");
+        toast.error("이메일/아이디 또는 비밀번호가 올바르지 않습니다.");
         return;
       }
 
@@ -74,16 +74,18 @@ export default function LoginPage() {
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
+              <Label htmlFor="loginId">
+                이메일 또는 아이디
+              </Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                {...register("email")}
+                id="loginId"
+                type="text"
+                placeholder="이메일 또는 스테이네스트 아이디"
+                {...register("loginId")}
               />
-              {errors.email && (
+              {errors.loginId && (
                 <p className="text-sm text-destructive">
-                  {errors.email.message}
+                  {errors.loginId.message}
                 </p>
               )}
             </div>
@@ -163,6 +165,10 @@ export default function LoginPage() {
               카카오
             </Button>
           </div>
+
+          <p className="text-xs text-muted-foreground text-center">
+            ※ Google/카카오 로그인은 이메일 연동 계정만 가능합니다.
+          </p>
 
           <div className="text-center text-sm text-muted-foreground">
             계정이 없으신가요?{" "}

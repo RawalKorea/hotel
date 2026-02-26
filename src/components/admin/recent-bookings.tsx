@@ -11,7 +11,7 @@ type BookingItem = {
   checkOut: Date;
   status: string;
   totalPrice: number;
-  user: { name: string | null; email: string };
+  user: { name: string | null; email: string | null; username?: string | null };
   room: { name: string; grade: string };
 };
 
@@ -33,7 +33,7 @@ export function RecentBookings({ bookings }: { bookings: BookingItem[] }) {
         >
           <div className="space-y-1">
             <p className="text-sm font-medium">
-              {booking.user.name || booking.user.email}
+              {(booking.user.name || booking.user.email || booking.user.username) ?? "-"}
             </p>
             <p className="text-xs text-muted-foreground">
               {booking.room.name} ·{" "}

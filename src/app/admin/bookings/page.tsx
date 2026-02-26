@@ -9,7 +9,7 @@ export default async function AdminBookingsPage() {
     ReturnType<
       typeof prisma.booking.findMany<{
         include: {
-          user: { select: { name: true; email: true; phone: true } };
+          user: { select: { name: true; email: true; username: true; phone: true } };
           room: { select: { name: true; grade: true } };
           payment: { select: { status: true; amount: true } };
         };
@@ -21,7 +21,7 @@ export default async function AdminBookingsPage() {
     [bookings, rooms] = await Promise.all([
       prisma.booking.findMany({
         include: {
-          user: { select: { name: true, email: true, phone: true } },
+          user: { select: { name: true, email: true, username: true, phone: true } },
           room: { select: { name: true, grade: true } },
           payment: { select: { status: true, amount: true } },
         },
