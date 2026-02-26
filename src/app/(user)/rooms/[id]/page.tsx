@@ -17,17 +17,22 @@ export default async function RoomDetailPage({
 }) {
   const { id } = await params;
 
-  const room = await prisma.room.findUnique({
-    where: { id },
-    include: {
-      images: { orderBy: { sortOrder: "asc" } },
-      reviews: {
-        include: { user: { select: { name: true, image: true } } },
-        orderBy: { createdAt: "desc" },
-        take: 10,
+  let room;
+  try {
+    room = await prisma.room.findUnique({
+      where: { id },
+      include: {
+        images: { orderBy: { sortOrder: "asc" } },
+        reviews: {
+          include: { user: { select: { name: true, image: true } } },
+          orderBy: { createdAt: "desc" },
+          take: 10,
+        },
       },
-    },
-  });
+    });
+  } catch {
+    notFound();
+  }
 
   if (!room) notFound();
 

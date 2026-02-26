@@ -21,53 +21,64 @@ import { OccupancyChart } from "@/components/admin/occupancy-chart";
 export const dynamic = "force-dynamic";
 
 async function getDashboardData() {
-  const [totalRooms, totalBookings, todayBookings, totalUsers] =
-    await Promise.all([
-      prisma.room.count(),
-      prisma.booking.count(),
-      prisma.booking.count({
-        where: {
-          checkIn: {
-            lte: new Date(),
+  try {
+    const [totalRooms, totalBookings, todayBookings, totalUsers] =
+      await Promise.all([
+        prisma.room.count(),
+        prisma.booking.count(),
+        prisma.booking.count({
+          where: {
+            checkIn: {
+              lte: new Date(),
+            },
+            checkOut: {
+              gte: new Date(),
+            },
+            status: { in: ["CONFIRMED", "CHECKED_IN"] },
           },
-          checkOut: {
-            gte: new Date(),
-          },
-          status: { in: ["CONFIRMED", "CHECKED_IN"] },
-        },
-      }),
-      prisma.user.count({ where: { role: "USER" } }),
-    ]);
+        }),
+        prisma.user.count({ where: { role: "USER" } }),
+      ]);
 
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0, 0, 0, 0);
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
 
-  const monthlyRevenue = await prisma.payment.aggregate({
-    _sum: { amount: true },
-    where: {
-      status: "PAID",
-      paidAt: { gte: monthStart },
-    },
-  });
+    const monthlyRevenue = await prisma.payment.aggregate({
+      _sum: { amount: true },
+      where: {
+        status: "PAID",
+        paidAt: { gte: monthStart },
+      },
+    });
 
-  const recentBookings = await prisma.booking.findMany({
-    take: 5,
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: { select: { name: true, email: true } },
-      room: { select: { name: true, grade: true } },
-    },
-  });
+    const recentBookings = await prisma.booking.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: { select: { name: true, email: true } },
+        room: { select: { name: true, grade: true } },
+      },
+    });
 
-  return {
-    totalRooms,
-    totalBookings,
-    todayBookings,
-    totalUsers,
-    monthlyRevenue: monthlyRevenue._sum.amount || 0,
-    recentBookings,
-  };
+    return {
+      totalRooms,
+      totalBookings,
+      todayBookings,
+      totalUsers,
+      monthlyRevenue: monthlyRevenue._sum.amount || 0,
+      recentBookings,
+    };
+  } catch {
+    return {
+      totalRooms: 0,
+      totalBookings: 0,
+      todayBookings: 0,
+      totalUsers: 0,
+      monthlyRevenue: 0,
+      recentBookings: [],
+    };
+  }
 }
 
 export default async function AdminDashboardPage() {

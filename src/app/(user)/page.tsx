@@ -20,12 +20,16 @@ import { SearchBar } from "@/components/user/search-bar";
 export const dynamic = "force-dynamic";
 
 async function getFeaturedRooms() {
-  return prisma.room.findMany({
-    where: { status: "AVAILABLE" },
-    include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } },
-    orderBy: { grade: "desc" },
-    take: 4,
-  });
+  try {
+    return await prisma.room.findMany({
+      where: { status: "AVAILABLE" },
+      include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } },
+      orderBy: { grade: "desc" },
+      take: 4,
+    });
+  } catch {
+    return [];
+  }
 }
 
 export default async function HomePage() {

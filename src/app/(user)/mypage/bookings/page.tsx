@@ -9,21 +9,26 @@ export default async function MyBookingsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const bookings = await prisma.booking.findMany({
-    where: { userId: session.user.id },
-    include: {
-      room: {
-        select: {
-          name: true,
-          grade: true,
-          images: { take: 1, orderBy: { sortOrder: "asc" } },
+  let bookings;
+  try {
+    bookings = await prisma.booking.findMany({
+      where: { userId: session.user.id },
+      include: {
+        room: {
+          select: {
+            name: true,
+            grade: true,
+            images: { take: 1, orderBy: { sortOrder: "asc" } },
+          },
         },
+        payment: { select: { status: true, amount: true, receiptUrl: true } },
+        review: { select: { id: true } },
       },
-      payment: { select: { status: true, amount: true, receiptUrl: true } },
-      review: { select: { id: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      orderBy: { createdAt: "desc" },
+    });
+  } catch {
+    bookings = [];
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">

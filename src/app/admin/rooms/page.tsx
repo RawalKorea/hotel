@@ -5,10 +5,15 @@ import { RoomList } from "@/components/admin/room-list";
 export const dynamic = "force-dynamic";
 
 export default async function AdminRoomsPage() {
-  const rooms = await prisma.room.findMany({
-    include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } },
-    orderBy: { sortOrder: "asc" },
-  });
+  let rooms;
+  try {
+    rooms = await prisma.room.findMany({
+      include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } },
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch {
+    rooms = [];
+  }
 
   return (
     <>

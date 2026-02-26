@@ -14,15 +14,27 @@ export default async function MyPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const [bookingCount, reviewCount] = await Promise.all([
-    prisma.booking.count({ where: { userId: session.user.id } }),
-    prisma.review.count({ where: { userId: session.user.id } }),
-  ]);
+  let bookingCount = 0;
+  let reviewCount = 0;
+  let user: { name: string | null; email: string | null; phone: string | null; image: string | null; createdAt: Date } | null = null;
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { name: true, email: true, phone: true, image: true, createdAt: true },
-  });
+  try {
+    [bookingCount, reviewCount] = await Promise.all([
+      prisma.booking.count({ where: { userId: session.user.id } }),
+      prisma.review.count({ where: { userId: session.user.id } }),
+    ]);
+  } catch {
+    // Use defaults (0, 0)
+  }
+
+  try {
+    user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { name: true, email: true, phone: true, image: true, createdAt: true },
+    });
+  } catch {
+    // Use default (null)
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">

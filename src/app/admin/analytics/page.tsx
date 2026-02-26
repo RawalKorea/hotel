@@ -13,46 +13,56 @@ import { GradeDistribution } from "@/components/admin/grade-distribution";
 export const dynamic = "force-dynamic";
 
 async function getAnalyticsData() {
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+  try {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
-  const [currentMonthRevenue, lastMonthRevenue, totalRevenue, bookingsByGrade] =
-    await Promise.all([
-      prisma.payment.aggregate({
-        _sum: { amount: true },
-        where: { status: "PAID", paidAt: { gte: monthStart } },
-      }),
-      prisma.payment.aggregate({
-        _sum: { amount: true },
-        where: {
-          status: "PAID",
-          paidAt: { gte: lastMonthStart, lte: lastMonthEnd },
-        },
-      }),
-      prisma.payment.aggregate({
-        _sum: { amount: true },
-        where: { status: "PAID" },
-      }),
-      prisma.booking.groupBy({
-        by: ["roomId"],
-        _count: true,
-        where: { status: { in: ["CONFIRMED", "CHECKED_IN", "CHECKED_OUT"] } },
-      }),
-    ]);
+    const [currentMonthRevenue, lastMonthRevenue, totalRevenue, bookingsByGrade] =
+      await Promise.all([
+        prisma.payment.aggregate({
+          _sum: { amount: true },
+          where: { status: "PAID", paidAt: { gte: monthStart } },
+        }),
+        prisma.payment.aggregate({
+          _sum: { amount: true },
+          where: {
+            status: "PAID",
+            paidAt: { gte: lastMonthStart, lte: lastMonthEnd },
+          },
+        }),
+        prisma.payment.aggregate({
+          _sum: { amount: true },
+          where: { status: "PAID" },
+        }),
+        prisma.booking.groupBy({
+          by: ["roomId"],
+          _count: true,
+          where: { status: { in: ["CONFIRMED", "CHECKED_IN", "CHECKED_OUT"] } },
+        }),
+      ]);
 
-  const current = currentMonthRevenue._sum.amount || 0;
-  const last = lastMonthRevenue._sum.amount || 0;
-  const growth = last > 0 ? Math.round(((current - last) / last) * 100) : 0;
+    const current = currentMonthRevenue._sum.amount || 0;
+    const last = lastMonthRevenue._sum.amount || 0;
+    const growth = last > 0 ? Math.round(((current - last) / last) * 100) : 0;
 
-  return {
-    currentMonthRevenue: current,
-    lastMonthRevenue: last,
-    totalRevenue: totalRevenue._sum.amount || 0,
-    growth,
-    totalBookings: bookingsByGrade.reduce((sum, b) => sum + b._count, 0),
-  };
+    return {
+      currentMonthRevenue: current,
+      lastMonthRevenue: last,
+      totalRevenue: totalRevenue._sum.amount || 0,
+      growth,
+      totalBookings: bookingsByGrade.reduce((sum, b) => sum + b._count, 0),
+    };
+  } catch {
+    return {
+      currentMonthRevenue: 0,
+      lastMonthRevenue: 0,
+      totalRevenue: 0,
+      growth: 0,
+      totalBookings: 0,
+    };
+  }
 }
 
 export default async function AdminAnalyticsPage() {

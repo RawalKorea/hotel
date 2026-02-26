@@ -41,14 +41,19 @@ export default async function RoomsPage({
     where.amenities = { hasEvery: params.amenities.split(",") };
   }
 
-  const rooms = await prisma.room.findMany({
-    where,
-    include: {
-      images: { orderBy: { sortOrder: "asc" }, take: 1 },
-      reviews: { select: { rating: true } },
-    },
-    orderBy: { sortOrder: "asc" },
-  });
+  let rooms;
+  try {
+    rooms = await prisma.room.findMany({
+      where,
+      include: {
+        images: { orderBy: { sortOrder: "asc" }, take: 1 },
+        reviews: { select: { rating: true } },
+      },
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch {
+    rooms = [];
+  }
 
   const roomsWithRating = rooms.map((room) => ({
     ...room,
