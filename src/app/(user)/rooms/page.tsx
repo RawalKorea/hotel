@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { RoomSearch } from "@/components/user/room-search";
 import type { RoomGrade } from "@prisma/client";
@@ -41,7 +42,13 @@ export default async function RoomsPage({
     where.amenities = { hasEvery: params.amenities.split(",") };
   }
 
-  let rooms;
+  type RoomWithReviews = Prisma.RoomGetPayload<{
+    include: {
+      images: true;
+      reviews: { select: { rating: true } };
+    };
+  }>;
+  let rooms: RoomWithReviews[];
   try {
     rooms = await prisma.room.findMany({
       where,
@@ -52,7 +59,7 @@ export default async function RoomsPage({
       orderBy: { sortOrder: "asc" },
     });
   } catch {
-    rooms = [];
+    rooms = [] as typeof rooms;
   }
 
   const roomsWithRating = rooms.map((room) => ({

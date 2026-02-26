@@ -24,7 +24,7 @@ import {
 import { Star, MapPin, Loader2, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 
-type BookingItem = {
+export type BookingItem = {
   id: string;
   checkIn: Date;
   checkOut: Date;

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { ROOM_GRADES, formatPrice } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,13 @@ export default async function RoomDetailPage({
 }) {
   const { id } = await params;
 
-  let room;
+  type RoomWithRelations = Prisma.RoomGetPayload<{
+    include: {
+      images: true;
+      reviews: { include: { user: { select: { name: true; image: true } } } };
+    };
+  }>;
+  let room: RoomWithRelations | null;
   try {
     room = await prisma.room.findUnique({
       where: { id },
@@ -35,6 +42,7 @@ export default async function RoomDetailPage({
   }
 
   if (!room) notFound();
+
 
   const avgRating =
     room.reviews.length > 0

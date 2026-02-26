@@ -5,8 +5,18 @@ import { BookingManager } from "@/components/admin/booking-manager";
 export const dynamic = "force-dynamic";
 
 export default async function AdminBookingsPage() {
-  let bookings;
-  let rooms;
+  let bookings: Awaited<
+    ReturnType<
+      typeof prisma.booking.findMany<{
+        include: {
+          user: { select: { name: true; email: true; phone: true } };
+          room: { select: { name: true; grade: true } };
+          payment: { select: { status: true; amount: true } };
+        };
+      }>
+    >
+  >;
+  let rooms: { id: string; name: string }[];
   try {
     [bookings, rooms] = await Promise.all([
       prisma.booking.findMany({
@@ -23,8 +33,8 @@ export default async function AdminBookingsPage() {
       }),
     ]);
   } catch {
-    bookings = [];
-    rooms = [];
+    bookings = [] as typeof bookings;
+    rooms = [] as typeof rooms;
   }
 
   return (

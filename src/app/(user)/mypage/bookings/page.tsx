@@ -1,7 +1,10 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { MyBookingList } from "@/components/user/my-booking-list";
+import {
+  MyBookingList,
+  type BookingItem,
+} from "@/components/user/my-booking-list";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +12,7 @@ export default async function MyBookingsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  let bookings;
+  let bookings: BookingItem[];
   try {
     bookings = await prisma.booking.findMany({
       where: { userId: session.user.id },
@@ -27,7 +30,7 @@ export default async function MyBookingsPage() {
       orderBy: { createdAt: "desc" },
     });
   } catch {
-    bookings = [];
+    bookings = [] as typeof bookings;
   }
 
   return (
