@@ -98,8 +98,54 @@ export async function POST(req: Request) {
       }
     }
 
-    // OpenAI API 연동 (환경변수 설정 시)
-    if (process.env.OPENAI_API_KEY && !matchedFaq) {
+    // Gemini API 우선 연동 (환경변수 GEMINI_API_KEY 설정 시)
+    if (process.env.GEMINI_API_KEY && !matchedFaq) {
+      try {
+        const history = await prisma.chatMessage.findMany({
+          where: { sessionId: chatSession.id },
+          orderBy: { createdAt: "asc" },
+          take: 10,
+        });
+
+        const settings = await prisma.chatbotSettings.findFirst();
+        const systemPrompt =
+          settings?.systemPrompt ||
+          "당신은 StayNest 호텔의 AI 컨시어지입니다. 친절하고 전문적으로 고객의 질문에 답변해주세요.";
+
+        // Gemini 형식: role은 user 또는 model (assistant -> model)
+        const contents = history.map((m) => ({
+          role: m.role === "assistant" ? "model" : "user",
+          parts: [{ text: m.content }],
+        }));
+
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents,
+              generationConfig: {
+                maxOutputTokens: 500,
+                temperature: 0.7,
+              },
+            }),
+          }
+        );
+
+        if (geminiRes.ok) {
+          const data = await geminiRes.json();
+          const textPart = data.candidates?.[0]?.content?.parts?.[0];
+          if (textPart?.text) aiResponse = textPart.text;
+        }
+      } catch {
+        // Gemini 실패 시 아래 OpenAI 또는 기본 응답 사용
+      }
+    }
+
+    // Gemini 없을 때 OpenAI API 연동 (환경변수 OPENAI_API_KEY 설정 시)
+    if (!aiResponse && process.env.OPENAI_API_KEY && !matchedFaq) {
       try {
         const history = await prisma.chatMessage.findMany({
           where: { sessionId: chatSession.id },

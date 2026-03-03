@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-const COLORS = ["#4285F4", "#34A853", "#FBBC05", "#EA4335"];
+const COLORS = ["#8B5CF6", "#06B6D4", "#F59E0B", "#EC4899"];
 const L = 2 * Math.PI * 10;
 const SEG = L / 4;
 

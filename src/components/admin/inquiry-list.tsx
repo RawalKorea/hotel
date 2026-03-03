@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { INQUIRY_STATUS, INQUIRY_STATUS_COLOR } from "@/lib/constants";
 import { Search, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
-import { GeminiSpinner } from "@/components/ui/gemini-spinner";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { toast } from "sonner";
 
 type InquiryItem = {
@@ -161,9 +161,10 @@ export function InquiryList() {
 
       <div className="rounded-lg border bg-card">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <GeminiSpinner className="h-8 w-8" />
-          </div>
+          <>
+            <LoadingOverlay />
+            <div className="min-h-[200px]" />
+          </>
         ) : (
           <Table>
             <TableHeader>

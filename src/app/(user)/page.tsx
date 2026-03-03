@@ -16,6 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { SearchBar } from "@/components/user/search-bar";
+import { EventCarousel } from "@/components/user/event-carousel";
 
 export const dynamic = "force-dynamic";
 
@@ -89,6 +90,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Event Carousel */}
+      <EventCarousel />
 
       {/* Features */}
       <section className="py-16 md:py-24">

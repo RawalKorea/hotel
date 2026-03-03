@@ -32,6 +32,7 @@ import { CalendarDays, Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 
 export function RoomBookingForm({
   roomId,
@@ -107,6 +108,8 @@ export function RoomBookingForm({
   };
 
   return (
+    <>
+      {isLoading && <LoadingOverlay />}
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-baseline gap-1">
@@ -255,5 +258,6 @@ export function RoomBookingForm({
         </Button>
       </CardContent>
     </Card>
+    </>
   );
 }

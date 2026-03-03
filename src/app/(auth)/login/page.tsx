@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Hotel, Loader2 } from "lucide-react";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { toast } from "sonner";
 
 export default function LoginPage() {
@@ -62,6 +63,8 @@ export default function LoginPage() {
   };
 
   return (
+    <>
+      {isLoading && <LoadingOverlay />}
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
@@ -182,5 +185,6 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }

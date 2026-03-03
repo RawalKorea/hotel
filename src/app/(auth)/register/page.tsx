@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Hotel, Loader2, AlertTriangle } from "lucide-react";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { toast } from "sonner";
 
 type AccountType = "email" | "staynest";
@@ -95,6 +96,8 @@ export default function RegisterPage() {
   };
 
   return (
+    <>
+      {isLoading && <LoadingOverlay />}
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
@@ -328,6 +331,7 @@ export default function RegisterPage() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }
 

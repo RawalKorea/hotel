@@ -19,6 +19,7 @@ import {
   LogOut,
   Users,
   FileText,
+  ShieldAlert,
 } from "lucide-react";
 
 const navItems = [
@@ -66,6 +67,11 @@ const navItems = [
     title: "패치 노트",
     href: "/admin/patchnotes",
     icon: FileText,
+  },
+  {
+    title: "위험 권한",
+    href: "/admin/danger",
+    icon: ShieldAlert,
   },
   {
     title: "설정",

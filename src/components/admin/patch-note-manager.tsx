@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { GeminiSpinner } from "@/components/ui/gemini-spinner";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { toast } from "sonner";
 
 type PatchNoteItem = {
@@ -149,9 +149,10 @@ export function PatchNoteManager() {
 
       <div className="rounded-lg border bg-card">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <GeminiSpinner className="h-8 w-8" />
-          </div>
+          <>
+            <LoadingOverlay />
+            <div className="min-h-[200px]" />
+          </>
         ) : (
           <Table>
             <TableHeader>

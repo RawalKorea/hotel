@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { roomSchema, type RoomInput } from "@/lib/validations/room";
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { ROOM_GRADES, AMENITIES_OPTIONS } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { toast } from "sonner";
 
 type RoomItem = {
@@ -77,6 +78,26 @@ export function RoomForm({
 
   const amenities = watch("amenities") || [];
 
+  useEffect(() => {
+    if (!room) {
+      fetch("/api/admin/settings")
+        .then((r) => r.json())
+        .then((data) => {
+          const raw = data.defaultRoomAmenities;
+          const arr =
+            typeof raw === "string"
+              ? raw
+                ? (JSON.parse(raw) as string[])
+                : []
+              : Array.isArray(raw)
+                ? raw
+                : [];
+          if (arr.length > 0) setValue("amenities", arr);
+        })
+        .catch(() => {});
+    }
+  }, [room, setValue]);
+
   const toggleAmenity = (amenity: string) => {
     const updated = amenities.includes(amenity)
       ? amenities.filter((a) => a !== amenity)
@@ -114,6 +135,7 @@ export function RoomForm({
 
   return (
     <>
+      {isLoading && <LoadingOverlay />}
       <DialogHeader>
         <DialogTitle>{isEdit ? "객실 수정" : "새 객실 등록"}</DialogTitle>
         <DialogDescription>

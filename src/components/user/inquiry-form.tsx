@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 
 export function InquiryForm({ userId }: { userId?: string }) {
   const [form, setForm] = useState({
@@ -66,6 +67,8 @@ export function InquiryForm({ userId }: { userId?: string }) {
   }
 
   return (
+    <>
+      {loading && <LoadingOverlay />}
     <Card>
       <CardHeader>
         <CardTitle>문의 양식</CardTitle>
@@ -137,5 +140,6 @@ export function InquiryForm({ userId }: { userId?: string }) {
         </form>
       </CardContent>
     </Card>
+    </>
   );
 }

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
-import { GeminiSpinner } from "@/components/ui/gemini-spinner";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { cn } from "@/lib/utils";
 
 type Message = {
@@ -163,19 +163,7 @@ export function ChatWidget() {
                   )}
                 </div>
               ))}
-              {isLoading && (
-                <div className="flex gap-2">
-                  <Avatar className="h-7 w-7 flex-shrink-0">
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      <Bot className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="bg-muted rounded-2xl rounded-bl-md px-3 py-2 flex items-center gap-2">
-                    <GeminiSpinner className="h-6 w-6 flex-shrink-0" />
-                    <span className="text-xs text-muted-foreground">응답 대기 중...</span>
-                  </div>
-                </div>
-              )}
+              {isLoading && <LoadingOverlay />}
             </div>
           </div>
 
