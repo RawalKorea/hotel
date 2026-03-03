@@ -53,3 +53,23 @@ export const AMENITIES_OPTIONS = [
 
 export const formatPrice = (price: number) =>
   new Intl.NumberFormat("ko-KR").format(price);
+
+export const USER_ROLES = {
+  USER: "일반회원",
+  STAFF: "스태프",
+  SUPER_ADMIN: "최고관리자",
+} as const;
+
+export const INQUIRY_STATUS = {
+  PENDING: "대기",
+  IN_PROGRESS: "처리중",
+  RESOLVED: "답변완료",
+  CLOSED: "종료",
+} as const;
+
+export const INQUIRY_STATUS_COLOR: Record<string, string> = {
+  PENDING: "bg-yellow-100 text-yellow-800",
+  IN_PROGRESS: "bg-blue-100 text-blue-800",
+  RESOLVED: "bg-green-100 text-green-800",
+  CLOSED: "bg-gray-100 text-gray-800",
+};

@@ -34,6 +34,7 @@ model User {
   bookings      Booking[]
   reviews       Review[]
   chatSessions  ChatSession[]
+  inquiries     Inquiry[]
 }
 
 model Account {
@@ -250,6 +251,32 @@ model ChatMessage {
   session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }
 
+// ─── Inquiry (고객 문의) ─────────────────────────────────
+
+enum InquiryStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model Inquiry {
+  id        String        @id @default(cuid())
+  userId    String?
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  content   String        @db.Text
+  status    InquiryStatus @default(PENDING)
+  reply     String?       @db.Text
+  repliedAt DateTime?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
 // ─── Notice ──────────────────────────────────────────────
 
 model Notice {
@@ -257,6 +284,16 @@ model Notice {
   title     String
   content   String   @db.Text
   isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Site Settings (전역 설정) ─────────────────────────────
+
+model SiteSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
   updatedAt DateTime @updatedAt
 }
