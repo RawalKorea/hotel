@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
 import { GeminiSpinner } from "@/components/ui/gemini-spinner";
@@ -29,10 +28,8 @@ export function ChatWidget() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "instant" });
+  }, [messages, isLoading]);
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -41,6 +38,8 @@ export function ChatWidget() {
     setInput("");
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsLoading(true);
+
+    await new Promise((r) => setTimeout(r, 0));
 
     try {
       const res = await fetch("/api/chat", {
@@ -104,11 +103,17 @@ export function ChatWidget() {
         )}
       </Button>
 
-      {/* Chat Window */}
-      {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-[380px] rounded-2xl border bg-card shadow-2xl overflow-hidden">
-          {/* Header */}
-          <div className="bg-primary px-4 py-3 text-primary-foreground">
+      {/* Chat Window - 항상 DOM에 두고 보여줌으로 즉시 열림 */}
+      <div
+        className={cn(
+          "fixed bottom-24 right-6 z-50 w-[380px] rounded-2xl border bg-card shadow-2xl overflow-hidden transition-[opacity,visibility,transform] duration-75",
+          isOpen
+            ? "opacity-100 visible translate-y-0"
+            : "opacity-0 invisible translate-y-2 pointer-events-none"
+        )}
+      >
+        {/* Header */}
+        <div className="bg-primary px-4 py-3 text-primary-foreground">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5" />
               <div>
@@ -118,9 +123,12 @@ export function ChatWidget() {
             </div>
           </div>
 
-          {/* Messages */}
-          <ScrollArea className="h-[400px] p-4" ref={scrollRef}>
-            <div className="space-y-4">
+        {/* Messages - div+overflow로 스크롤 제어 */}
+        <div
+          ref={scrollRef}
+          className="h-[400px] overflow-y-auto overflow-x-hidden p-4"
+        >
+          <div className="space-y-4">
               {messages.map((msg, i) => (
                 <div
                   key={i}
@@ -157,18 +165,19 @@ export function ChatWidget() {
               ))}
               {isLoading && (
                 <div className="flex gap-2">
-                  <Avatar className="h-7 w-7">
+                  <Avatar className="h-7 w-7 flex-shrink-0">
                     <AvatarFallback className="bg-primary/10 text-primary">
                       <Bot className="h-4 w-4" />
                     </AvatarFallback>
                   </Avatar>
-                  <div className="bg-muted rounded-2xl rounded-bl-md px-3 py-2">
-                    <GeminiSpinner className="h-5 w-5" />
+                  <div className="bg-muted rounded-2xl rounded-bl-md px-3 py-2 flex items-center gap-2">
+                    <GeminiSpinner className="h-6 w-6 flex-shrink-0" />
+                    <span className="text-xs text-muted-foreground">응답 대기 중...</span>
                   </div>
                 </div>
               )}
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Input */}
           <div className="border-t p-3">
@@ -192,7 +201,6 @@ export function ChatWidget() {
             </div>
           </div>
         </div>
-      )}
     </>
   );
 }
