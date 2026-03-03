@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { roomSchema, type RoomInput } from "@/lib/validations/room";
@@ -23,19 +23,27 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ROOM_GRADES, AMENITIES_OPTIONS } from "@/lib/constants";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2, ImagePlus } from "lucide-react";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { toast } from "sonner";
+
+type RoomImageItem = {
+  url: string;
+  name?: string;
+  description?: string;
+};
 
 type RoomItem = {
   id: string;
   name: string;
+  description?: string;
   grade: string;
   pricePerNight: number;
   maxAdults: number;
   maxChildren: number;
   status: string;
   amenities: string[];
+  images?: { url: string; name?: string | null; description?: string | null }[];
 };
 
 export function RoomForm({
@@ -46,6 +54,14 @@ export function RoomForm({
   onSuccess: () => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [images, setImages] = useState<RoomImageItem[]>(
+    room?.images?.map((img) => ({
+      url: img.url,
+      name: img.name ?? "",
+      description: img.description ?? "",
+    })) ?? []
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isEdit = !!room;
 
   const {
@@ -59,7 +75,7 @@ export function RoomForm({
     defaultValues: room
       ? {
           name: room.name,
-          description: "",
+          description: room.description || "",
           grade: room.grade as RoomInput["grade"],
           pricePerNight: room.pricePerNight,
           maxAdults: room.maxAdults,
@@ -105,6 +121,39 @@ export function RoomForm({
     setValue("amenities", updated, { shouldValidate: true });
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    for (const file of Array.from(files)) {
+      const fd = new FormData();
+      fd.append("file", file);
+      try {
+        const res = await fetch("/api/admin/rooms/upload", {
+          method: "POST",
+          body: fd,
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setImages((prev) => [...prev, { url: data.fileUrl, name: "", description: "" }]);
+      } catch {
+        toast.error("이미지 업로드 실패");
+      }
+    }
+    e.target.value = "";
+  };
+
+  const updateImage = (index: number, field: "name" | "description", value: string) => {
+    setImages((prev) =>
+      prev.map((img, i) =>
+        i === index ? { ...img, [field]: value } : img
+      )
+    );
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const onSubmit = async (data: RoomInput) => {
     setIsLoading(true);
     try {
@@ -114,7 +163,14 @@ export function RoomForm({
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          images: images.map((img) => ({
+            url: img.url,
+            name: img.name || undefined,
+            description: img.description || undefined,
+          })),
+        }),
       });
 
       if (!res.ok) {
@@ -256,6 +312,70 @@ export function RoomForm({
             </Select>
           </div>
         )}
+
+        <div className="space-y-2">
+          <Label>객실 이미지</Label>
+          <p className="text-xs text-muted-foreground mb-2">
+            여러 장의 이미지를 추가할 수 있으며, 각 이미지에 이름과 설명을 입력할 수 있습니다.
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            multiple
+            className="hidden"
+            onChange={handleImageUpload}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            className="mb-2"
+          >
+            <ImagePlus className="mr-2 h-4 w-4" />
+            이미지 추가
+          </Button>
+          <div className="space-y-3 max-h-48 overflow-y-auto">
+            {images.map((img, i) => (
+              <div
+                key={i}
+                className="flex gap-3 p-3 rounded-lg border bg-muted/30"
+              >
+                <div className="w-20 h-20 shrink-0 rounded overflow-hidden bg-muted">
+                  <img
+                    src={img.url}
+                    alt={img.name || "객실 이미지"}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0 space-y-2">
+                  <Input
+                    placeholder="이미지 이름"
+                    value={img.name || ""}
+                    onChange={(e) => updateImage(i, "name", e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                  <Input
+                    placeholder="이미지 설명"
+                    value={img.description || ""}
+                    onChange={(e) => updateImage(i, "description", e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-destructive hover:text-destructive"
+                  onClick={() => removeImage(i)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="space-y-2">
           <Label>편의시설</Label>

@@ -12,7 +12,7 @@ export default async function AdminRoomsPage() {
   let rooms: RoomWithImage[];
   try {
     rooms = await prisma.room.findMany({
-      include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } },
+      include: { images: { orderBy: { sortOrder: "asc" } } },
       orderBy: { sortOrder: "asc" },
     });
   } catch {

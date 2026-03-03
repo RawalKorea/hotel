@@ -59,8 +59,10 @@ export async function PUT(
         ...parsed.data,
         images: body.images?.length
           ? {
-              create: body.images.map((url: string, i: number) => ({
-                url,
+              create: body.images.map((img: { url: string; name?: string; description?: string } | string, i: number) => ({
+                url: typeof img === "string" ? img : img.url,
+                name: typeof img === "object" ? img.name : undefined,
+                description: typeof img === "object" ? img.description : undefined,
                 sortOrder: i,
               })),
             }

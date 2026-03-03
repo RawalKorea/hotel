@@ -7,7 +7,9 @@ import { MapPin } from "lucide-react";
 type ImageData = {
   id: string;
   url: string;
-  alt: string | null;
+  alt?: string | null;
+  name?: string | null;
+  description?: string | null;
 };
 
 export function RoomImageGallery({
@@ -27,14 +29,24 @@ export function RoomImageGallery({
     );
   }
 
+  const current = images[selected];
+
   return (
     <div className="space-y-3">
-      <div className="aspect-[16/9] overflow-hidden rounded-2xl bg-muted">
+      <div className="aspect-[16/9] overflow-hidden rounded-2xl bg-muted relative">
         <img
-          src={images[selected].url}
-          alt={images[selected].alt || name}
+          src={current.url}
+          alt={current.name || current.alt || name}
           className="h-full w-full object-cover"
         />
+        {(current.name || current.description) && (
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent text-white">
+            {current.name && <p className="font-medium">{current.name}</p>}
+            {current.description && (
+              <p className="text-sm opacity-90 mt-0.5">{current.description}</p>
+            )}
+          </div>
+        )}
       </div>
       {images.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2">

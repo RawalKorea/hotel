@@ -35,13 +35,14 @@ import { RoomForm } from "./room-form";
 type RoomItem = {
   id: string;
   name: string;
+  description?: string;
   grade: string;
   pricePerNight: number;
   maxAdults: number;
   maxChildren: number;
   status: string;
   amenities: string[];
-  images: { id: string; url: string }[];
+  images: Array<{ id: string; url: string; name?: string | null; description?: string | null }>;
 };
 
 export function RoomList({ initialRooms }: { initialRooms: RoomItem[] }) {

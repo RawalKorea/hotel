@@ -39,18 +39,40 @@ export function RoomBookingForm({
   pricePerNight,
   maxAdults,
   maxChildren,
+  defaultCheckIn,
+  defaultCheckOut,
+  defaultAdults = "1",
+  defaultChildren = "0",
 }: {
   roomId: string;
   pricePerNight: number;
   maxAdults: number;
   maxChildren: number;
+  defaultCheckIn?: string;
+  defaultCheckOut?: string;
+  defaultAdults?: string;
+  defaultChildren?: string;
 }) {
   const router = useRouter();
   const { data: session } = useSession();
-  const [checkIn, setCheckIn] = useState<Date>();
-  const [checkOut, setCheckOut] = useState<Date>();
-  const [adults, setAdults] = useState("1");
-  const [children, setChildren] = useState("0");
+  const [checkIn, setCheckIn] = useState<Date | undefined>(() => {
+    if (!defaultCheckIn) return undefined;
+    const d = new Date(defaultCheckIn);
+    return isNaN(d.getTime()) ? undefined : d;
+  });
+  const [checkOut, setCheckOut] = useState<Date | undefined>(() => {
+    if (!defaultCheckOut) return undefined;
+    const d = new Date(defaultCheckOut);
+    return isNaN(d.getTime()) ? undefined : d;
+  });
+  const [adults, setAdults] = useState(() => {
+    const n = parseInt(defaultAdults, 10);
+    return n >= 1 && n <= maxAdults ? n.toString() : "1";
+  });
+  const [children, setChildren] = useState(() => {
+    const n = parseInt(defaultChildren, 10);
+    return n >= 0 && n <= maxChildren ? n.toString() : "0";
+  });
   const [specialNote, setSpecialNote] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 

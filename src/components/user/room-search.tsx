@@ -47,12 +47,18 @@ export function RoomSearch({
   rooms,
   defaultCheckIn: _defaultCheckIn,
   defaultCheckOut: _defaultCheckOut,
-  defaultGuests: _defaultGuests,
+  defaultAdults,
+  defaultChildren,
+  queryString = "",
+  noExactMatch = false,
 }: {
   rooms: RoomData[];
   defaultCheckIn?: string;
   defaultCheckOut?: string;
-  defaultGuests?: string;
+  defaultAdults?: string;
+  defaultChildren?: string;
+  queryString?: string;
+  noExactMatch?: boolean;
 }) {
   const [gradeFilter, setGradeFilter] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<string>("default");
@@ -193,9 +199,21 @@ export function RoomSearch({
         </span>
       </div>
 
+      {noExactMatch && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50 p-4 text-amber-800 dark:text-amber-200">
+          <p className="font-medium">조건에 맞는 객실이 없습니다.</p>
+          <p className="text-sm mt-1 opacity-90">
+            아래에는 비슷한 객실과 다른 추천 객실을 표시합니다.
+          </p>
+        </div>
+      )}
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((room) => (
-          <Link key={room.id} href={`/rooms/${room.id}`}>
+          <Link
+            key={room.id}
+            href={`/rooms/${room.id}${queryString ? `?${queryString}` : ""}`}
+          >
             <Card className="group overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all h-full">
               <div className="aspect-[4/3] overflow-hidden bg-muted">
                 {room.images[0] ? (

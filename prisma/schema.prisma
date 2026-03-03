@@ -120,12 +120,14 @@ model Room {
 }
 
 model RoomImage {
-  id        String   @id @default(cuid())
-  roomId    String
-  url       String
-  alt       String?
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  roomId      String
+  url         String
+  alt         String?
+  name        String?  // 이미지별 이름
+  description String?  @db.Text // 이미지별 설명
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
 
   room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }

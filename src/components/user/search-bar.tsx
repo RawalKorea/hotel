@@ -21,17 +21,37 @@ import {
 import { CalendarDays, Search, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function SearchBar() {
+export function SearchBar({
+  defaultCheckIn,
+  defaultCheckOut,
+  defaultAdults = "2",
+  defaultChildren = "0",
+}: {
+  defaultCheckIn?: Date | string;
+  defaultCheckOut?: Date | string;
+  defaultAdults?: string;
+  defaultChildren?: string;
+} = {}) {
   const router = useRouter();
-  const [checkIn, setCheckIn] = useState<Date>();
-  const [checkOut, setCheckOut] = useState<Date>();
-  const [guests, setGuests] = useState("2");
+  const [checkIn, setCheckIn] = useState<Date | undefined>(() => {
+    if (!defaultCheckIn) return undefined;
+    const d = typeof defaultCheckIn === "string" ? new Date(defaultCheckIn) : defaultCheckIn;
+    return isNaN(d.getTime()) ? undefined : d;
+  });
+  const [checkOut, setCheckOut] = useState<Date | undefined>(() => {
+    if (!defaultCheckOut) return undefined;
+    const d = typeof defaultCheckOut === "string" ? new Date(defaultCheckOut) : defaultCheckOut;
+    return isNaN(d.getTime()) ? undefined : d;
+  });
+  const [adults, setAdults] = useState(defaultAdults);
+  const [children, setChildren] = useState(defaultChildren);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (checkIn) params.set("checkIn", format(checkIn, "yyyy-MM-dd"));
     if (checkOut) params.set("checkOut", format(checkOut, "yyyy-MM-dd"));
-    params.set("guests", guests);
+    params.set("adults", adults);
+    params.set("children", children);
     router.push(`/rooms?${params.toString()}`);
   };
 
@@ -92,19 +112,33 @@ export function SearchBar() {
           </PopoverContent>
         </Popover>
 
-        <Select value={guests} onValueChange={setGuests}>
-          <SelectTrigger className="flex-1 gap-2 bg-white/90 hover:bg-white h-12 rounded-xl border-0">
-            <Users className="h-4 w-4" />
-            <SelectValue placeholder="인원" />
-          </SelectTrigger>
-          <SelectContent>
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <SelectItem key={n} value={n.toString()}>
-                성인 {n}명
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex flex-1 gap-1">
+          <Select value={adults} onValueChange={setAdults}>
+            <SelectTrigger className="gap-2 bg-white/90 hover:bg-white h-12 rounded-xl border-0 flex-1">
+              <Users className="h-4 w-4 shrink-0" />
+              <SelectValue placeholder="성인" />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <SelectItem key={n} value={n.toString()}>
+                  성인 {n}명
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={children} onValueChange={setChildren}>
+            <SelectTrigger className="gap-2 bg-white/90 hover:bg-white h-12 rounded-xl border-0 w-[100px]">
+              <SelectValue placeholder="아동" />
+            </SelectTrigger>
+            <SelectContent>
+              {[0, 1, 2, 3, 4].map((n) => (
+                <SelectItem key={n} value={n.toString()}>
+                  아동 {n}명
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <Button
           onClick={handleSearch}

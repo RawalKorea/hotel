@@ -13,10 +13,18 @@ export const dynamic = "force-dynamic";
 
 export default async function RoomDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{
+    checkIn?: string;
+    checkOut?: string;
+    adults?: string;
+    children?: string;
+  }>;
 }) {
   const { id } = await params;
+  const sp = await searchParams;
 
   type RoomWithRelations = Prisma.RoomGetPayload<{
     include: {
@@ -120,6 +128,10 @@ export default async function RoomDetailPage({
               pricePerNight={room.pricePerNight}
               maxAdults={room.maxAdults}
               maxChildren={room.maxChildren}
+              defaultCheckIn={sp.checkIn}
+              defaultCheckOut={sp.checkOut}
+              defaultAdults={sp.adults}
+              defaultChildren={sp.children}
             />
           </div>
         </div>
