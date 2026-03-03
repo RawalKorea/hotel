@@ -9,14 +9,12 @@ import {
   Star,
   Shield,
   Headphones,
-  Sparkles,
   ArrowRight,
   MapPin,
   CalendarDays,
   Users,
 } from "lucide-react";
-import { SearchBar } from "@/components/user/search-bar";
-import { EventCarousel } from "@/components/user/event-carousel";
+import { HeroWithEvent } from "@/components/user/hero-with-event";
 
 export const dynamic = "force-dynamic";
 
@@ -61,38 +59,8 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDE4YzEuNjU3IDAgMy0xLjM0MyAzLTNzLTEuMzQzLTMtMy0zLTMgMS4zNDMtMyAzIDEuMzQzIDMgMyAzem0xMiAxMmMxLjY1NyAwIDMtMS4zNDMgMy0zcy0xLjM0My0zLTMtMy0zIDEuMzQzLTMgMyAxLjM0MyAzIDMgM3oiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40" />
-        <div className="container mx-auto px-4 py-24 md:py-32">
-          <div className="mx-auto max-w-3xl text-center">
-            <Badge className="mb-4" variant="secondary">
-              <Sparkles className="mr-1 h-3 w-3" />
-              AI 기반 스마트 호텔
-            </Badge>
-            <h1 className="mb-6 text-4xl font-bold tracking-tight text-white md:text-6xl">
-              완벽한 휴식을 위한
-              <br />
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                특별한 공간
-              </span>
-            </h1>
-            <p className="mb-8 text-lg text-slate-300 md:text-xl">
-              프리미엄 객실에서 잊지 못할 경험을 만나보세요.
-              <br />
-              AI 컨시어지가 24시간 최상의 서비스를 제공합니다.
-            </p>
-          </div>
-
-          {/* Search Bar */}
-          <div className="mx-auto max-w-4xl">
-            <SearchBar />
-          </div>
-        </div>
-      </section>
-
-      {/* Event Carousel */}
-      <EventCarousel />
+      {/* Hero: 이벤트 배경 + 객실·인원 검색 */}
+      <HeroWithEvent />
 
       {/* Features */}
       <section className="py-16 md:py-24">
