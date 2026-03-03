@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { USER_ROLES } from "@/lib/constants";
 import { Search, ChevronLeft, ChevronRight, User } from "lucide-react";
+import { GeminiSpinner } from "@/components/ui/gemini-spinner";
 import { toast } from "sonner";
 
 type UserItem = {
@@ -151,7 +152,7 @@ export function UserList() {
       <div className="rounded-lg border bg-card">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <p className="text-muted-foreground">로딩 중...</p>
+            <GeminiSpinner className="h-8 w-8" />
           </div>
         ) : (
           <Table>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { GeminiSpinner } from "@/components/ui/gemini-spinner";
 
 const SETTINGS_FIELDS: Array<{
   key: string;
@@ -73,9 +74,9 @@ export function SettingsForm() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <p className="text-muted-foreground">로딩 중...</p>
-      </div>
+        <div className="flex items-center justify-center py-12">
+          <GeminiSpinner className="h-8 w-8" />
+        </div>
     );
   }
 

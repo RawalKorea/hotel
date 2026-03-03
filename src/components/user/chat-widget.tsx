@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageCircle, X, Send, Loader2, Bot, User } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import { GeminiSpinner } from "@/components/ui/gemini-spinner";
 import { cn } from "@/lib/utils";
 
 type Message = {
@@ -162,7 +163,7 @@ export function ChatWidget() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="bg-muted rounded-2xl rounded-bl-md px-3 py-2">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <GeminiSpinner className="h-5 w-5" />
                   </div>
                 </div>
               )}
