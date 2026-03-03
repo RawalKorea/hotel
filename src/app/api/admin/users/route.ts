@@ -14,17 +14,17 @@ export async function GET(req: Request) {
   const search = searchParams.get("search") || "";
   const role = searchParams.get("role");
 
-  const where: Record<string, unknown> = {};
-  if (search) {
+  const where: { OR?: unknown[]; role?: string } = {};
+  if (search.trim()) {
     where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { email: { contains: search, mode: "insensitive" } },
-      { username: { contains: search, mode: "insensitive" } },
-      { phone: { contains: search, mode: "insensitive" } },
+      { name: { contains: search.trim(), mode: "insensitive" } },
+      { email: { contains: search.trim(), mode: "insensitive" } },
+      { username: { contains: search.trim(), mode: "insensitive" } },
+      { phone: { contains: search.trim(), mode: "insensitive" } },
     ];
   }
-  if (role) {
-    where.role = role;
+  if (role && ["USER", "STAFF", "SUPER_ADMIN"].includes(role)) {
+    where.role = role as "USER" | "STAFF" | "SUPER_ADMIN";
   }
 
   const [users, total] = await Promise.all([
@@ -43,10 +43,10 @@ export async function GET(req: Request) {
   ]);
 
   // password 제외
-  const safeUsers = users.map(({ password, ...u }) => ({
-    ...u,
-    _count: (u as { _count?: { bookings: number; reviews: number } })._count,
-  }));
+  const safeUsers = users.map((u) => {
+    const { password: _p, ...rest } = u;
+    return { ...rest, _count: (u as { _count?: { bookings: number; reviews: number } })._count };
+  });
 
   return NextResponse.json({
     users: safeUsers,

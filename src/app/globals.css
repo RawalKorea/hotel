@@ -82,6 +82,11 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* 각지게: 관리자 위험권한 설정에서 cornerStyle=sharp 시 적용 */
+html[data-corner="sharp"] {
+  --radius: 0 !important;
+}
+
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);

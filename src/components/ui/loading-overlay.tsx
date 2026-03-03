@@ -13,9 +13,7 @@ export function LoadingOverlay() {
       aria-live="polite"
       aria-label="로딩 중"
     >
-      <div className="rounded-2xl bg-card/95 px-8 py-6 shadow-2xl">
-        <GeminiSpinner className="h-12 w-12" />
-      </div>
+      <GeminiSpinner className="h-12 w-12" />
     </div>
   );
 }

@@ -41,6 +41,11 @@ model User {
   bannedBy       UserBan[]   @relation("UserBannedBy")
   suspensions    UserSuspension[] @relation("UserSuspensions")
   suspendedBy    UserSuspension[] @relation("UserSuspendedBy")
+  relationships  UserRelationship[] @relation("UserRelationships")
+  relationshipTargets UserRelationship[] @relation("UserRelationshipTargets")
+  relationshipCreated UserRelationship[] @relation("UserRelationshipCreatedBy")
+  conversationParticipants ConversationParticipant[]
+  messagesSent Message[]
 }
 
 model Account {
@@ -354,6 +359,78 @@ model UserSuspension {
   admin   User @relation("UserSuspendedBy", fields: [suspendedBy], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// ─── 사용자 관계 (관리자 일방 설정) ───────────────────────────
+
+enum RelationshipType {
+  FRIEND
+  FAMILY
+  PARTNERS
+}
+
+model UserRelationship {
+  id        String           @id @default(cuid())
+  userId    String
+  targetId  String
+  type      RelationshipType
+  createdBy String
+  createdAt DateTime         @default(now())
+
+  user    User @relation("UserRelationships", fields: [userId], references: [id], onDelete: Cascade)
+  target  User @relation("UserRelationshipTargets", fields: [targetId], references: [id], onDelete: Cascade)
+  admin   User @relation("UserRelationshipCreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetId, type])
+}
+
+// ─── 메시지 (실시간 1:1, 단체, 가족) ────────────────────────────
+
+model Conversation {
+  id        String   @id @default(cuid())
+  type      String   @default("direct")
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  role           String   @default("member")
+  joinedAt       DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String   @db.Text
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  attachments  MessageAttachment[]
+}
+
+model MessageAttachment {
+  id        String   @id @default(cuid())
+  messageId String
+  fileUrl   String
+  fileName  String
+  fileType  String?
+  createdAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
 }
 
 // ─── 이벤트 (메인 화면 캐러셀) ─────────────────────────────────

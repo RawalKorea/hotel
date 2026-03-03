@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { USER_ROLES } from "@/lib/constants";
+import { UserRelationshipManager } from "@/components/admin/user-relationship-manager";
 import { Search, ChevronLeft, ChevronRight, User, Ban, Clock, Trash2 } from "lucide-react";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { toast } from "sonner";
@@ -51,6 +52,7 @@ export function UserList() {
   const [roleFilter, setRoleFilter] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [detailUser, setDetailUser] = useState<UserItem | null>(null);
+  const [showRelations, setShowRelations] = useState(false);
   const [banModal, setBanModal] = useState<UserItem | null>(null);
   const [banReason, setBanReason] = useState("");
   const [suspendModal, setSuspendModal] = useState<UserItem | null>(null);
@@ -73,10 +75,10 @@ export function UserList() {
         ...(roleFilter && { role: roleFilter }),
       });
       const res = await fetch(`/api/admin/users?${params}`);
-      if (!res.ok) throw new Error();
       const data = await res.json();
-      setUsers(data.users);
-      setTotal(data.total);
+      if (!res.ok) throw new Error(data.error || "Failed to fetch");
+      setUsers(Array.isArray(data.users) ? data.users : []);
+      setTotal(typeof data.total === "number" ? data.total : 0);
     } catch {
       toast.error("고객 목록을 불러오는데 실패했습니다.");
     } finally {
@@ -252,7 +254,7 @@ export function UserList() {
                     <TableCell>{u.phone || "-"}</TableCell>
                     <TableCell>
                       <Select
-                        value={u.role}
+                        value={u.role || "USER"}
                         onValueChange={(v) => handleRoleChange(u.id, v)}
                       >
                         <SelectTrigger className="w-28 h-8">
@@ -345,21 +347,40 @@ export function UserList() {
         </div>
       )}
 
-      <Dialog open={!!detailUser} onOpenChange={() => setDetailUser(null)}>
-        <DialogContent className="max-w-lg">
+      <Dialog open={!!detailUser} onOpenChange={() => { setDetailUser(null); setShowRelations(false); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {detailUser?.name || "고객"} 상세
             </DialogTitle>
           </DialogHeader>
           {detailUser && userDetail && (
-            <div className="space-y-3 text-sm">
-              <p><strong>이메일:</strong> {detailUser.email || "-"}</p>
-              <p><strong>아이디:</strong> {detailUser.username || "-"}</p>
-              <p><strong>전화:</strong> {detailUser.phone || "-"}</p>
-              <p><strong>예약:</strong> {userDetail._count.bookings}건</p>
-              <p><strong>리뷰:</strong> {userDetail._count.reviews}건</p>
-              <p><strong>문의:</strong> {userDetail._count.inquiries}건</p>
+            <div className="space-y-4">
+              <div className="space-y-3 text-sm">
+                <p><strong>이메일:</strong> {detailUser.email || "-"}</p>
+                <p><strong>아이디:</strong> {detailUser.username || "-"}</p>
+                <p><strong>전화:</strong> {detailUser.phone || "-"}</p>
+                <p><strong>예약:</strong> {userDetail._count.bookings}건</p>
+                <p><strong>리뷰:</strong> {userDetail._count.reviews}건</p>
+                <p><strong>문의:</strong> {userDetail._count.inquiries}건</p>
+              </div>
+              <div>
+                <Button
+                  variant={showRelations ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() => setShowRelations(!showRelations)}
+                >
+                  {showRelations ? "관계 설정 닫기" : "친구/가족/파트너스 설정"}
+                </Button>
+                {showRelations && (
+                  <div className="mt-4">
+                    <UserRelationshipManager
+                      userId={detailUser.id}
+                      userName={detailUser.name || detailUser.email || detailUser.username || "사용자"}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </DialogContent>

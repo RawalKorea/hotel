@@ -17,8 +17,8 @@ alwaysApply: true
    - 또는 관리자 패널 → 패치 노트에서 직접 등록
    - 사용자·관리자가 /patchnotes에서 확인 가능
 
-3. **Git 커밋 및 푸시**
-   - `git add -A && git commit -m "메시지" && git push origin main`
-   - 원격 인증은 로컬에 설정되어 있음 → 수정 후 푸시까지 반드시 수행
+3. **Git 커밋 및 자동 푸시**
+   - 코드 수정 후 **반드시** 다음 명령 실행: `git add -A && git commit -m "메시지" && git push origin main`
+   - 수정 완료 시 항상 푸시까지 수행. 사용자가 별도 요청 없어도 푸시는 필수.
 
 예외: 문서·주석만 바꾸고 실제 기능 변경이 없을 때는 버전·패치노트 생략 가능.
