@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -14,13 +15,14 @@ export async function GET(req: Request) {
   const search = searchParams.get("search") || "";
   const role = searchParams.get("role");
 
-  const where: { OR?: unknown[]; role?: string } = {};
+  const where: Prisma.UserWhereInput = {};
   if (search.trim()) {
+    const term = search.trim();
     where.OR = [
-      { name: { contains: search.trim(), mode: "insensitive" } },
-      { email: { contains: search.trim(), mode: "insensitive" } },
-      { username: { contains: search.trim(), mode: "insensitive" } },
-      { phone: { contains: search.trim(), mode: "insensitive" } },
+      { name: { contains: term, mode: "insensitive" } },
+      { email: { contains: term, mode: "insensitive" } },
+      { username: { contains: term, mode: "insensitive" } },
+      { phone: { contains: term, mode: "insensitive" } },
     ];
   }
   if (role && ["USER", "STAFF", "SUPER_ADMIN"].includes(role)) {
