@@ -112,9 +112,10 @@ export async function POST(req: Request) {
       { message: "회원가입이 완료되었습니다." },
       { status: 201 }
     );
-  } catch {
+  } catch (err) {
+    console.error("[register] 서버 오류:", err);
     return NextResponse.json(
-      { error: "서버 오류가 발생했습니다." },
+      { error: "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요." },
       { status: 500 }
     );
   }
