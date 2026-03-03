@@ -1,6 +1,6 @@
 {
   "name": "hotel4",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,11 @@
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "npx tsx prisma/seed.ts"
+    "db:seed": "npx tsx prisma/seed.ts",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "release:patch": "npm run version:patch && git add -A && git commit -m \"chore: 패치 업데이트\" && git push origin main",
+    "release:minor": "npm run version:minor && git add -A && git commit -m \"chore: 대규모 업데이트\" && git push origin main"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
