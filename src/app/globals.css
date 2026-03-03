@@ -48,38 +48,50 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.875rem;
+  /* 베이지 메인 컬러 - 따뜻한 색조 */
+  --beige-50: oklch(0.985 0.01 85);
+  --beige-100: oklch(0.965 0.015 80);
+  --beige-200: oklch(0.94 0.02 78);
+  --beige-300: oklch(0.88 0.03 75);
+  --beige-400: oklch(0.7 0.06 70);
+  --beige-500: oklch(0.5 0.1 65);
+  --beige-600: oklch(0.4 0.1 60);
+  --beige-700: oklch(0.32 0.08 58);
+  --beige-800: oklch(0.25 0.06 55);
+  --beige-900: oklch(0.2 0.04 50);
+  /* 애플 스타일 베이지 테마 */
+  --background: var(--beige-50);
+  --foreground: var(--beige-800);
+  --card: oklch(1 0.005 85);
+  --card-foreground: var(--beige-800);
+  --popover: oklch(1 0.005 85);
+  --popover-foreground: var(--beige-800);
+  --primary: var(--beige-600);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: var(--beige-100);
+  --secondary-foreground: var(--beige-700);
+  --muted: var(--beige-100);
+  --muted-foreground: var(--beige-500);
+  --accent: var(--beige-200);
+  --accent-foreground: var(--beige-700);
+  --destructive: oklch(0.55 0.2 25);
+  --border: var(--beige-200);
+  --input: var(--beige-200);
+  --ring: var(--beige-500);
+  --chart-1: var(--beige-500);
+  --chart-2: oklch(0.55 0.12 145);
+  --chart-3: oklch(0.6 0.1 45);
+  --chart-4: var(--beige-400);
+  --chart-5: oklch(0.5 0.12 25);
+  --sidebar: var(--beige-50);
+  --sidebar-foreground: var(--beige-800);
+  --sidebar-primary: var(--beige-600);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: var(--beige-100);
+  --sidebar-accent-foreground: var(--beige-700);
+  --sidebar-border: var(--beige-200);
+  --sidebar-ring: var(--beige-500);
 }
 
 /* 각지게: 관리자 위험권한 설정에서 cornerStyle=sharp 시 적용 */
@@ -127,7 +139,28 @@ html[data-corner="sharp"] {
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* 애플 스타일 - 부드러운 그림자, 깔끔한 인터페이스 */
+.shadow-apple {
+  box-shadow:
+    0 1px 2px oklch(0.2 0.02 65 / 0.04),
+    0 4px 12px oklch(0.2 0.02 65 / 0.06);
+}
+.shadow-apple-lg {
+  box-shadow:
+    0 2px 8px oklch(0.2 0.02 65 / 0.05),
+    0 12px 28px oklch(0.2 0.02 65 / 0.08);
+}
+
+/* 애플 느낌 - 글래스모피즘, 부드러운 블러 */
+.backdrop-apple {
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
 
 /* UI 랙 제거 - 모든 팝업/다이얼로그/시트 즉시 열림 */

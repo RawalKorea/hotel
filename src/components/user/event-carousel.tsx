@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 type EventItem = {
   id: string;
@@ -25,11 +26,19 @@ export function EventCarousel() {
   const [detailEvent, setDetailEvent] = useState<EventItem | null>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [carouselMode, setCarouselMode] = useState<"swipe" | "smooth">("smooth");
 
   useEffect(() => {
     fetch("/api/events")
       .then((r) => r.json())
       .then(setEvents)
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/settings/theme")
+      .then((r) => r.json())
+      .then((d) => setCarouselMode(d.eventCarouselMode === "swipe" ? "swipe" : "smooth"))
       .catch(() => {});
   }, []);
 
@@ -49,10 +58,16 @@ export function EventCarousel() {
     setIndex((i) => (i + 1) % events.length);
   }, [events.length]);
 
-  const onTouchStart = (e: React.TouchEvent) => setTouchStart(e.targetTouches[0].clientX);
-  const onTouchMove = (e: React.TouchEvent) => setTouchEnd(e.targetTouches[0].clientX);
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (carouselMode !== "swipe") return;
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (carouselMode !== "swipe") return;
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
   const onTouchEnd = () => {
-    if (touchStart == null || touchEnd == null) return;
+    if (carouselMode !== "swipe" || touchStart == null || touchEnd == null) return;
     const diff = touchStart - touchEnd;
     if (Math.abs(diff) > 50) {
       if (diff > 0) goNext();
@@ -64,7 +79,7 @@ export function EventCarousel() {
 
   if (events.length === 0) return null;
 
-  const current = events[index];
+  const isSwipe = carouselMode === "swipe";
 
   return (
     <>
@@ -74,14 +89,61 @@ export function EventCarousel() {
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        <div className="relative aspect-[21/9] md:aspect-[3/1] bg-muted">
-          {events.map((e, i) => (
+        <div
+          className={cn(
+            "relative aspect-[21/9] md:aspect-[3/1] bg-muted",
+            isSwipe && "flex"
+          )}
+        >
+          {isSwipe ? (
             <div
-              key={e.id}
-              className={`absolute inset-0 transition-opacity duration-500 ${
-                i === index ? "opacity-100 z-10" : "opacity-0 z-0"
-              }`}
+              className="flex w-full h-full transition-transform duration-300 ease-out"
+              style={{ transform: `translateX(-${index * 100}%)` }}
             >
+              {events.map((e) => (
+                <div key={e.id} className="min-w-full h-full flex-shrink-0 relative">
+                  {e.imageUrl ? (
+                    <img
+                      src={e.imageUrl}
+                      alt={e.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-primary/20 to-primary/10" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white">
+                    <h2 className="text-2xl md:text-4xl font-bold mb-2">{e.name}</h2>
+                    <div className="flex gap-3">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setDetailEvent(e)}
+                        className="bg-white/90 hover:bg-white text-foreground"
+                      >
+                        자세히 보기
+                      </Button>
+                      {e.linkUrl && (
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={e.linkUrl} target="_blank" rel="noopener" className="border-white/80 text-white hover:bg-white/20">
+                            바로가기
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            events.map((e, i) => (
+              <div
+                key={e.id}
+                className={cn(
+                  "absolute inset-0 transition-opacity duration-500",
+                  i === index ? "opacity-100 z-10" : "opacity-0 z-0"
+                )}
+              >
               {e.imageUrl ? (
                 <img
                   src={e.imageUrl}
@@ -113,7 +175,8 @@ export function EventCarousel() {
                 </div>
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
 
         {events.length > 1 && (

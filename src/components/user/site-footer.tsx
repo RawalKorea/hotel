@@ -12,7 +12,7 @@ export async function SiteFooter() {
   const footerText = settings.footerText || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
 
   return (
-    <footer className="border-t bg-muted/30">
+    <footer className="border-t border-border/60 bg-muted/30">
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-3">

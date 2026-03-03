@@ -11,13 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Hotel, User, LogOut, CalendarDays, Settings } from "lucide-react";
+import { Hotel, User, LogOut, CalendarDays, Settings, MessageCircle } from "lucide-react";
 
 export function SiteHeader() {
   const { data: session } = useSession();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-apple supports-[backdrop-filter]:bg-background/70 shadow-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -45,6 +45,14 @@ export function SiteHeader() {
           >
             문의하기
           </Link>
+          {session?.user && (
+            <Link
+              href="/messages"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              메시지
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-3">
@@ -81,6 +89,12 @@ export function SiteHeader() {
                   <Link href="/mypage/bookings" className="cursor-pointer">
                     <CalendarDays className="mr-2 h-4 w-4" />
                     예약 내역
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/messages" className="cursor-pointer">
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    메시지
                   </Link>
                 </DropdownMenuItem>
                 {(session.user.role === "SUPER_ADMIN" ||

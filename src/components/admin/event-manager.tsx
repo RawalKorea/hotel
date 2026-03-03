@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
-import { Plus, Pencil, Trash2, Megaphone } from "lucide-react";
+import { Plus, Pencil, Trash2, Megaphone, Upload, X } from "lucide-react";
 
 type EventItem = {
   id: string;
@@ -41,6 +41,7 @@ export function EventManager() {
     sortOrder: 0,
     isActive: true,
   });
+  const [imageUploading, setImageUploading] = useState(false);
 
   const fetchEvents = async () => {
     try {
@@ -232,13 +233,68 @@ export function EventManager() {
               />
             </div>
             <div>
-              <Label htmlFor="eimg">이미지 URL</Label>
-              <Input
-                id="eimg"
-                value={form.imageUrl}
-                onChange={(e) => setForm((p) => ({ ...p, imageUrl: e.target.value }))}
-                placeholder="https://..."
-              />
+              <Label>이미지</Label>
+              <div className="flex gap-2 items-center mt-1">
+                <input
+                  id="eimg-upload"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setImageUploading(true);
+                    try {
+                      const fd = new FormData();
+                      fd.append("file", file);
+                      const res = await fetch("/api/admin/events/upload", {
+                        method: "POST",
+                        body: fd,
+                      });
+                      if (!res.ok) {
+                        const err = await res.json();
+                        throw new Error(err.error);
+                      }
+                      const data = await res.json();
+                      setForm((p) => ({ ...p, imageUrl: data.fileUrl }));
+                      toast.success("이미지가 업로드되었습니다.");
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "업로드 실패");
+                    } finally {
+                      setImageUploading(false);
+                      e.target.value = "";
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById("eimg-upload")?.click()}
+                  disabled={imageUploading}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {imageUploading ? "업로드 중..." : "컴퓨터에서 선택"}
+                </Button>
+                {form.imageUrl && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setForm((p) => ({ ...p, imageUrl: "" }))}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {form.imageUrl && (
+                <div className="mt-2">
+                  <img
+                    src={form.imageUrl}
+                    alt="미리보기"
+                    className="h-24 rounded-lg object-cover border"
+                  />
+                </div>
+              )}
             </div>
             <div>
               <Label htmlFor="elink">링크 URL (클릭 시 이동)</Label>
