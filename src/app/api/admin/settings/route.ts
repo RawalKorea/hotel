@@ -13,6 +13,10 @@ const DEFAULT_KEYS = [
   "checkOutTime",
   "cancellationPolicy",
   "footerText",
+  "aboutContent",
+  "faqContent",
+  "termsContent",
+  "privacyContent",
 ] as const;
 
 export async function GET() {

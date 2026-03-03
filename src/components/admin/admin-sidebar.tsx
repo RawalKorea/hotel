@@ -18,6 +18,7 @@ import {
   Settings,
   LogOut,
   Users,
+  FileText,
 } from "lucide-react";
 
 const navItems = [
@@ -60,6 +61,11 @@ const navItems = [
     title: "공지사항",
     href: "/admin/notices",
     icon: Megaphone,
+  },
+  {
+    title: "패치 노트",
+    href: "/admin/patchnotes",
+    icon: FileText,
   },
   {
     title: "설정",

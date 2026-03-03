@@ -297,3 +297,13 @@ model SiteSettings {
   value     String   @db.Text
   updatedAt DateTime @updatedAt
 }
+
+// ─── Patch Note (패치 노트) ──────────────────────────────────
+
+model PatchNote {
+  id        String   @id @default(cuid())
+  version   String
+  title     String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+}
