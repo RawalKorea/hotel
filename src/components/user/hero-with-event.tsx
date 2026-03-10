@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,10 +11,52 @@ import { cn } from "@/lib/utils";
 type EventItem = {
   id: string;
   name: string;
+  description: string | null;
   imageUrl: string | null;
+  linkUrl: string | null;
 };
 
+function EventContent({
+  event,
+  onClick,
+}: {
+  event: EventItem;
+  onClick: () => void;
+}) {
+  const hasLink = !!event.linkUrl;
+  const content = (
+    <>
+      <h1 className="mb-4 text-4xl font-bold tracking-tight text-white md:text-6xl">
+        {event.name}
+      </h1>
+      {event.description && (
+        <p className="mb-8 text-lg text-slate-200 md:text-xl max-w-2xl mx-auto">
+          {event.description}
+        </p>
+      )}
+      {hasLink && (
+        <span className="inline-block text-sm text-cyan-400 hover:text-cyan-300 underline cursor-pointer">
+          자세히 보기 →
+        </span>
+      )}
+    </>
+  );
+  if (hasLink) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-lg"
+      >
+        {content}
+      </button>
+    );
+  }
+  return <div>{content}</div>;
+}
+
 export function HeroWithEvent() {
+  const router = useRouter();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [index, setIndex] = useState(0);
   const [carouselMode, setCarouselMode] = useState<"swipe" | "smooth">("smooth");
@@ -146,27 +189,42 @@ export function HeroWithEvent() {
         </>
       )}
 
-      {/* 상단 히어로 + 객실·인원 검색 */}
+      {/* 상단: 이벤트 이름·설명 (이벤트 있으면) 또는 배지 */}
       <div className="relative z-[2] container mx-auto px-4 py-20 md:py-28">
         <div className="mx-auto max-w-3xl text-center mb-8">
-          <Badge className="mb-4" variant="secondary">
-            <Sparkles className="mr-1 h-3 w-3" />
-            AI 기반 스마트 호텔
-          </Badge>
-          <h1 className="mb-6 text-4xl font-bold tracking-tight text-white md:text-6xl">
-            완벽한 휴식을 위한
-            <br />
-            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              특별한 공간
-            </span>
-          </h1>
-          <p className="mb-8 text-lg text-slate-200 md:text-xl">
-            프리미엄 객실에서 잊지 못할 경험을 만나보세요.
-            <br />
-            AI 컨시어지가 24시간 최상의 서비스를 제공합니다.
-          </p>
+          {hasEvents ? (
+            <EventContent
+              event={events[index]}
+              onClick={() => {
+                const url = events[index].linkUrl;
+                if (url) {
+                  if (url.startsWith("http")) {
+                    window.open(url, "_blank");
+                  } else {
+                    router.push(url);
+                  }
+                }
+              }}
+            />
+          ) : (
+            <>
+              <Badge className="mb-4" variant="secondary">
+                <Sparkles className="mr-1 h-3 w-3" />
+                AI 기반 스마트 호텔
+              </Badge>
+              <h1 className="mb-6 text-4xl font-bold tracking-tight text-white md:text-6xl">
+                <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                  StayNest
+                </span>
+              </h1>
+              <p className="mb-8 text-lg text-slate-200 md:text-xl">
+                AI 컨시어지가 24시간 최상의 서비스를 제공합니다.
+              </p>
+            </>
+          )}
         </div>
 
+        {/* 날짜·인원 검색 (이벤트 밑) */}
         <div className="mx-auto max-w-4xl">
           <SearchBar />
         </div>

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { RecentBookings } from "@/components/admin/recent-bookings";
 import { OccupancyChart } from "@/components/admin/occupancy-chart";
+import { getChartData } from "@/lib/analytics";
 
 export const dynamic = "force-dynamic";
 
@@ -82,7 +83,10 @@ async function getDashboardData() {
 }
 
 export default async function AdminDashboardPage() {
-  const data = await getDashboardData();
+  const [data, chartData] = await Promise.all([
+    getDashboardData(),
+    getChartData(),
+  ]);
 
   const occupancyRate =
     data.totalRooms > 0
@@ -162,7 +166,7 @@ export default async function AdminDashboardPage() {
               <CardTitle>객실 가동률 추이</CardTitle>
             </CardHeader>
             <CardContent>
-              <OccupancyChart />
+              <OccupancyChart data={chartData.monthlyOccupancy} />
             </CardContent>
           </Card>
 

@@ -15,25 +15,22 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const mockData = [
-  { month: "1월", occupancy: 65 },
-  { month: "2월", occupancy: 72 },
-  { month: "3월", occupancy: 58 },
-  { month: "4월", occupancy: 80 },
-  { month: "5월", occupancy: 85 },
-  { month: "6월", occupancy: 90 },
-  { month: "7월", occupancy: 95 },
-  { month: "8월", occupancy: 92 },
-  { month: "9월", occupancy: 78 },
-  { month: "10월", occupancy: 70 },
-  { month: "11월", occupancy: 62 },
-  { month: "12월", occupancy: 88 },
-];
+type DataItem = { month: string; occupancy: number };
 
-export function OccupancyChart() {
+export function OccupancyChart({ data }: { data: DataItem[] }) {
+  const hasData = data.some((d) => d.occupancy > 0);
+
+  if (!hasData) {
+    return (
+      <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
+        데이터가 없습니다.
+      </div>
+    );
+  }
+
   return (
     <ChartContainer config={chartConfig} className="h-[300px] w-full">
-      <BarChart data={mockData}>
+      <BarChart data={data}>
         <XAxis
           dataKey="month"
           tickLine={false}

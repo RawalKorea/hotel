@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { RevenueChart } from "@/components/admin/revenue-chart";
 import { GradeDistribution } from "@/components/admin/grade-distribution";
+import { getChartData } from "@/lib/analytics";
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +67,10 @@ async function getAnalyticsData() {
 }
 
 export default async function AdminAnalyticsPage() {
-  const data = await getAnalyticsData();
+  const [data, chartData] = await Promise.all([
+    getAnalyticsData(),
+    getChartData(),
+  ]);
 
   return (
     <>
@@ -136,7 +140,7 @@ export default async function AdminAnalyticsPage() {
               <CardTitle>월별 매출 추이</CardTitle>
             </CardHeader>
             <CardContent>
-              <RevenueChart />
+              <RevenueChart data={chartData.monthlyRevenue} />
             </CardContent>
           </Card>
 
@@ -145,7 +149,7 @@ export default async function AdminAnalyticsPage() {
               <CardTitle>객실 등급별 예약 분포</CardTitle>
             </CardHeader>
             <CardContent>
-              <GradeDistribution />
+              <GradeDistribution data={chartData.gradeDistribution} />
             </CardContent>
           </Card>
         </div>

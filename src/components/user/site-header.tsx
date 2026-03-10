@@ -45,6 +45,12 @@ export function SiteHeader() {
           >
             문의하기
           </Link>
+          <Link
+            href="/community"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            후기·커뮤니티
+          </Link>
           {session?.user && (
             <Link
               href="/messages"

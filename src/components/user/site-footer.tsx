@@ -45,6 +45,11 @@ export async function SiteFooter() {
                   문의하기
                 </Link>
               </li>
+              <li>
+                <Link href="/community" className="hover:text-foreground">
+                  후기·커뮤니티
+                </Link>
+              </li>
             </ul>
           </div>
 

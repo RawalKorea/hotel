@@ -16,15 +16,19 @@ const chartConfig = {
   presidential: { label: "프레지덴셜", color: "var(--chart-5)" },
 } satisfies ChartConfig;
 
-const data = [
-  { name: "스탠다드", value: 35, fill: "var(--color-standard)" },
-  { name: "슈피리어", value: 25, fill: "var(--color-superior)" },
-  { name: "디럭스", value: 20, fill: "var(--color-deluxe)" },
-  { name: "스위트", value: 12, fill: "var(--color-suite)" },
-  { name: "프레지덴셜", value: 8, fill: "var(--color-presidential)" },
-];
+type DataItem = { name: string; value: number; fill?: string };
 
-export function GradeDistribution() {
+export function GradeDistribution({ data }: { data: DataItem[] }) {
+  const hasData = data.length > 0 && data.some((d) => d.value > 0);
+
+  if (!hasData) {
+    return (
+      <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
+        데이터가 없습니다.
+      </div>
+    );
+  }
+
   return (
     <ChartContainer config={chartConfig} className="h-[300px] w-full">
       <PieChart>
