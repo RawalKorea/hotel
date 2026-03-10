@@ -49,9 +49,78 @@ export function PaymentSettings() {
     fetchData();
   }, []);
 
+  const handleAddCardReal = async () => {
+    const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID;
+    const w = typeof window !== "undefined" ? window : null;
+    type WinIMP = {
+      IMP?: {
+        init: (id: string) => void;
+        request_pay: (
+          o: object,
+          cb: (r: { success?: boolean; imp_uid?: string; error_msg?: string }) => void
+        ) => void;
+      };
+    };
+    const imp = w && "IMP" in w ? (w as WinIMP).IMP : null;
+
+    if (!storeId || !imp) {
+      toast.error("Portone이 설정되지 않았습니다. 수동 등록을 이용해주세요.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const prep = await fetch("/api/user/payment-methods/register/prepare");
+      if (!prep.ok) throw new Error("준비 실패");
+      const { customer_uid, merchant_uid } = await prep.json();
+
+      imp.init(storeId);
+      imp.request_pay(
+        {
+          pg: "nice",
+          pay_method: "card",
+          customer_uid,
+          merchant_uid,
+          amount: 0,
+          name: "카드 등록",
+        },
+        async (r) => {
+          if (r.success && r.imp_uid) {
+            try {
+              const res = await fetch("/api/user/payment-methods/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  imp_uid: r.imp_uid,
+                  customer_uid,
+                  card_nickname: cardNickname.trim() || null,
+                }),
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.error);
+              toast.success("결제 수단이 등록되었습니다.");
+              setAddCardOpen(false);
+              setCardNickname("");
+              setCardMask("");
+              fetchData();
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "등록 실패");
+            }
+          } else {
+            toast.error(r.error_msg || "카드 등록이 취소되었습니다.");
+          }
+          setIsLoading(false);
+        }
+      );
+    } catch {
+      toast.error("카드 등록 준비 실패");
+      setIsLoading(false);
+    }
+  };
+
   const handleAddCard = async () => {
     const masked = cardMask.trim() || "****-****-****-****";
-    if (!/^[\d*\-]+$/.test(masked)) {
+    if (!/^[\d*\-]+$/.test(masked) && masked !== "****-****-****-****") {
       toast.error("카드 번호 형식이 올바르지 않습니다. (예: ****-****-****-1234)");
       return;
     }
@@ -66,7 +135,7 @@ export function PaymentSettings() {
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error);
-      toast.success("결제 수단이 등록되었습니다.");
+      toast.success("결제 수단이 등록되었습니다. (수동 등록)");
       setAddCardOpen(false);
       setCardNickname("");
       setCardMask("");
@@ -214,26 +283,39 @@ export function PaymentSettings() {
                 onChange={(e) => setCardNickname(e.target.value)}
               />
             </div>
-            <div>
-              <Label>카드 번호 (마스킹)</Label>
+            <div className="flex gap-2">
+              <Button
+                className="flex-1"
+                onClick={handleAddCardReal}
+                disabled={isLoading}
+              >
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                실제 카드 등록
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={handleAddCard}
+                disabled={isLoading}
+              >
+                수동 등록
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              실제 카드 등록: Portone 결제창으로 카드 정보 등록 (빠른 결제 가능)
+            </p>
+            <div className="border-t pt-4">
+              <Label>수동 등록 (카드 번호 마스킹)</Label>
               <Input
                 placeholder="****-****-****-1234"
                 value={cardMask}
                 onChange={(e) => setCardMask(e.target.value)}
+                className="mt-1"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                실제 카드 등록은 결제 시 Portone을 통해 진행됩니다. 여기서는
-                표시용 마스킹 번호만 저장합니다.
+                수동 등록은 표시용이며, 실제 결제 시 카드 입력이 필요합니다.
               </p>
             </div>
-            <Button
-              className="w-full"
-              onClick={handleAddCard}
-              disabled={isLoading}
-            >
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              등록
-            </Button>
           </div>
         </DialogContent>
       </Dialog>

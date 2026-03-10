@@ -3,6 +3,11 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { generateMerchantUid } from "@/lib/payment";
+import {
+  verifyPayment,
+  isPortoneConfigured,
+  requestBillingPayment,
+} from "@/lib/portone";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -131,16 +136,21 @@ export async function POST(req: Request) {
       }
 
       const merchantUid = generateMerchantUid();
-      // 실제 환경: Portone billing API 호출 (billingKey, merchantUid, amount)
-      // 개발/키 없음: 시뮬레이션 성공
-      const hasPortone =
-        process.env.NEXT_PUBLIC_PORTONE_STORE_ID &&
-        process.env.PORTONE_API_SECRET;
+      const portoneReady = isPortoneConfigured();
 
-      if (hasPortone && saved.billingKey) {
-        // TODO: Portone 빌링키 결제 API 호출
-        // const res = await fetch(...)
-        // if (!res.ok) throw new Error();
+      if (portoneReady && saved.billingKey) {
+        const billingRes = await requestBillingPayment(
+          saved.billingKey,
+          merchantUid,
+          amount,
+          "객실 예약"
+        );
+        if (!billingRes.ok) {
+          return NextResponse.json(
+            { error: billingRes.error || "빌링키 결제에 실패했습니다." },
+            { status: 400 }
+          );
+        }
       }
 
       await prisma.$transaction([
@@ -165,9 +175,7 @@ export async function POST(req: Request) {
     if (method === "CARD") {
       const { impUid } = body;
       const merchantUid = body.merchantUid || generateMerchantUid();
-      const hasPortone =
-        process.env.NEXT_PUBLIC_PORTONE_STORE_ID &&
-        process.env.PORTONE_API_SECRET;
+      const portoneReady = isPortoneConfigured();
 
       if (!impUid) {
         return NextResponse.json(
@@ -181,11 +189,22 @@ export async function POST(req: Request) {
         );
       }
 
-      if (hasPortone) {
-        // Portone API로 imp_uid 검증 (실제 운영 시)
-        // const check = await fetch(`https://api.iamport.kr/payments/${impUid}`, { headers: {...} });
+      if (portoneReady) {
+        const verified = await verifyPayment(impUid, amount, merchantUid);
+        if (!verified.ok) {
+          return NextResponse.json(
+            { error: verified.error || "결제 검증에 실패했습니다." },
+            { status: 400 }
+          );
+        }
+      } else if (impUid.startsWith("test_")) {
+        // 개발 모드: test_ 접두사만 허용
+      } else {
+        return NextResponse.json(
+          { error: "결제 검증을 진행할 수 없습니다. Portone 설정을 확인해주세요." },
+          { status: 400 }
+        );
       }
-      // 개발/키 미설정: test_ 접두사 impUid 허용
 
       await prisma.$transaction([
         prisma.payment.update({
