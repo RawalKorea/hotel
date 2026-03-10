@@ -39,15 +39,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.loginId || !credentials?.password) return null;
-        const loginId = credentials.loginId as string;
+        const loginId = (credentials.loginId as string).trim();
         const isEmail = loginId.includes("@");
 
         const user = isEmail
-          ? await prisma.user.findUnique({
-              where: { email: loginId },
+          ? await prisma.user.findFirst({
+              where: {
+                email: { equals: loginId, mode: "insensitive" },
+              },
             })
-          : await prisma.user.findUnique({
-              where: { username: loginId },
+          : await prisma.user.findFirst({
+              where: {
+                username: { equals: loginId, mode: "insensitive" },
+              },
             });
 
         if (!user || !user.password) return null;

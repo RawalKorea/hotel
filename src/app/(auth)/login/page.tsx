@@ -38,7 +38,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const result = await signIn("credentials", {
-        loginId: data.loginId,
+        loginId: data.loginId.trim(),
         password: data.password,
         redirect: false,
       });
