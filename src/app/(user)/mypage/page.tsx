@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CalendarDays, Star, User } from "lucide-react";
+import { CalendarDays, Star, User, CreditCard } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -91,6 +91,22 @@ export default async function MyPage() {
             <p className="text-2xl font-bold">{reviewCount}건</p>
           </CardContent>
         </Card>
+
+        <Link href="/mypage/payment">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <CreditCard className="h-5 w-5 text-green-600" />
+                결제 관리
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                결제 수단·비밀번호
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
         <Card>
           <CardHeader className="pb-2">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { VersionBadge } from "@/components/version-badge";
@@ -29,6 +30,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Script
+          src="https://cdn.iamport.kr/v1/iamport.js"
+          strategy="lazyOnload"
+        />
         <Providers>{children}</Providers>
         <VersionBadge />
       </body>

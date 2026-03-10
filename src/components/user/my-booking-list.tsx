@@ -21,6 +21,7 @@ import {
   ROOM_GRADES,
   formatPrice,
 } from "@/lib/constants";
+import Link from "next/link";
 import { Star, MapPin, Loader2, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 
@@ -156,7 +157,14 @@ export function MyBookingList({ bookings }: { bookings: BookingItem[] }) {
                     <p className="text-lg font-bold">
                       ₩{formatPrice(booking.totalPrice)}
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
+                      {booking.status === "PENDING" && (
+                        <Button size="sm" asChild>
+                          <Link href={`/mypage/bookings/${booking.id}`}>
+                            결제하기
+                          </Link>
+                        </Button>
+                      )}
                       {booking.status === "CHECKED_OUT" && !booking.review && (
                         <Button
                           size="sm"

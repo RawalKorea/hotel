@@ -17,19 +17,22 @@ enum UserRole {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  username      String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  phone         String?
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  name            String?
+  email           String?   @unique
+  username        String?   @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?
+  phone           String?
+  role            UserRole  @default(USER)
+  paymentPassword String?   // 빠른 결제용 4~6자리 비밀번호 (bcrypt 해시)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  accounts       Account[]
+  accounts         Account[]
+  userPoint        UserPoint?
+  savedPaymentMethods SavedPaymentMethod[]
   sessions       Session[]
   bookings       Booking[]
   reviews        Review[]
@@ -175,7 +178,7 @@ model Payment {
   id            String        @id @default(cuid())
   bookingId     String        @unique
   amount        Int
-  method        String?
+  method        String?       // POINT | CARD | SAVED_CARD
   merchantUid   String?       @unique
   impUid        String?       @unique
   status        PaymentStatus @default(PENDING)
@@ -185,6 +188,27 @@ model Payment {
   updatedAt     DateTime      @updatedAt
 
   booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model UserPoint {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  balance   Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SavedPaymentMethod {
+  id             String   @id @default(cuid())
+  userId         String
+  cardNickname   String?
+  cardNumberMasked String  // 예: ****-****-****-1234
+  billingKey     String?  // Portone customer_uid (빌링키)
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ─── Review ──────────────────────────────────────────────
